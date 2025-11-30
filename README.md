@@ -57,7 +57,7 @@ Bu proje herhangi bir sunucu kurulumu veya `npm install` gerektirmez. Doğrudan 
 
 **Erhan Polat**
 * GitHub: [@Erhan Polat](https://github.com/ACRZeuss)
-* Buy me a coffee": [@Erhan Polat](https://buymeacoffee.com/erhanpolat)
+* Buy me a coffee: [@Erhan Polat](https://buymeacoffee.com/erhanpolat)
 
 ---
 *Bu proje eğlence amaçlı yapılmıştır. FIFA, EA Sports'un ticari markasıdır.*
