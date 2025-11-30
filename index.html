@@ -1,290 +1,590 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>⚽ AI FIFA Analizörü v5</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        :root {
-            --primary: #00d2ff;
-            --secondary: #ff0055;
-            --bg: #121212;
-            --card: #1e1e1e;
-            --text: #e0e0e0;
-            --input-bg: #2a2a2a;
+      :root {
+        --primary: #00d2ff;
+        --secondary: #ff0055;
+        --bg: #121212;
+        --card: #1e1e1e;
+        --text: #e0e0e0;
+        --input-bg: #2a2a2a;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-image: radial-gradient(circle at center, #222 0%, #000 100%);
+        padding: 20px;
+      }
+
+      .container {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
+        width: 100%;
+        max-width: 650px;
+        text-align: center;
+        border: 1px solid #333;
+        position: relative; /* İmza hizalaması için */
+      }
+
+      h1 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 1.8rem;
+      }
+      .subtitle {
+        font-size: 0.9rem;
+        color: #888;
+        margin-bottom: 1.5rem;
+      }
+
+      /* API Bölümü */
+      .api-section {
+        background: #252525;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 5px;
+        border: 1px dashed #444;
+      }
+      .api-input {
+        flex: 1;
+        padding: 8px;
+        background: #111;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 4px;
+      }
+      .action-btn {
+        background: #333;
+        color: white;
+        border: 1px solid #555;
+        padding: 0 15px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+
+      select {
+        width: 100%;
+        padding: 8px;
+        background: #111;
+        color: white;
+        margin-top: 5px;
+        border: 1px solid #444;
+      }
+
+      /* Maç Kartları */
+      .match-area {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .player-card {
+        flex: 1;
+        min-width: 250px;
+        background: #252525;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .p1-card {
+        border-top: 3px solid var(--primary);
+      }
+      .p2-card {
+        border-top: 3px solid var(--secondary);
+      }
+
+      .player-card h3 {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #aaa;
+        text-transform: uppercase;
+      }
+
+      input[type="text"] {
+        width: 90%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #444;
+        background: var(--input-bg);
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        margin: 0 auto;
+      }
+
+      .team-input {
+        font-weight: normal;
+        font-style: italic;
+        color: #bbb;
+        font-size: 0.8rem;
+      }
+
+      input[type="number"] {
+        background: transparent;
+        border: none;
+        color: white;
+        text-align: center;
+      }
+
+      .score-input {
+        font-size: 2.5rem;
+        font-weight: bold;
+        width: 100%;
+        margin: 5px 0;
+      }
+
+      /* İstatistikler */
+      .stats-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+        margin-top: 5px;
+        background: #1a1a1a;
+        padding: 5px;
+        border-radius: 5px;
+      }
+      .stat-box {
+        display: flex;
+        flex-direction: column;
+        width: 48%;
+      }
+      .stat-box label {
+        font-size: 0.6rem;
+        color: #777;
+        margin-bottom: 2px;
+      }
+      .stat-input {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 3px;
+        border: 1px solid #333;
+        background: #222;
+        border-radius: 4px;
+        color: var(--primary);
+      }
+      .p2-card .stat-input {
+        color: var(--secondary);
+      }
+
+      .vs-badge {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        color: #555;
+        margin: -5px 0 5px 0;
+      }
+
+      .main-btn {
+        background: linear-gradient(135deg, var(--primary), #3a7bd5);
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.2s;
+        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+      }
+      .main-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+      }
+      .main-btn:disabled {
+        background: #444;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Capture Area */
+      #capture-area {
+        margin-top: 30px;
+        display: none;
+        text-align: left;
+        background-color: #1a1a1a;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #333;
+      }
+
+      #result-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #333;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #fff;
+      }
+
+      .fortune-card {
+        background: #252525;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        border-left: 4px solid #555;
+        animation: fadeIn 0.5s ease;
+      }
+      .winner-card {
+        border-left-color: #4cd137;
+        background: rgba(76, 209, 55, 0.05);
+      }
+      .loser-card {
+        border-left-color: #ff0055;
+        background: rgba(255, 0, 85, 0.05);
+      }
+      .fortune-card h3 {
+        margin: 0 0 5px 0;
+        font-size: 0.85rem;
+        color: #fff;
+        opacity: 0.7;
+        text-transform: uppercase;
+      }
+      .fortune-text {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: #ddd;
+      }
+
+      .share-btn {
+        background: #ff9f43;
+        color: white;
+        border: none;
+        padding: 12px;
+        margin-top: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        display: none;
+      }
+      .share-btn:hover {
+        background: #ee8e32;
+      }
+
+      /* BUY ME A COFFEE CSS */
+      .bmc-container {
+        margin-top: 25px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: center;
+      }
+      .bmc-button img {
+        height: 40px !important;
+        width: auto !important;
+        transition: transform 0.2s;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      }
+      .bmc-button img:hover {
+        transform: scale(1.05) rotate(-2deg);
+        box-shadow: 0 6px 15px rgba(255, 221, 0, 0.3);
+      }
+
+      /* --- İMZA BÖLÜMÜ STİLLERİ --- */
+      .design-credit {
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #333;
+        font-size: 0.8rem;
+        color: #666;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .design-credit span {
+        color: var(--primary); /* Neon Mavi */
+        font-weight: bold;
+        text-shadow: 0 0 5px rgba(0, 210, 255, 0.3);
+        font-family: "Courier New", Courier, monospace; /* Kodlama havası */
+      }
+
+      .loader {
+        border: 4px solid #333;
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-image: radial-gradient(circle at center, #222 0%, #000 100%);
-            padding: 20px;
+        100% {
+          transform: rotate(360deg);
         }
-
-        .container {
-            background-color: var(--card);
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
-            width: 100%;
-            max-width: 650px;
-            text-align: center;
-            border: 1px solid #333;
-            position: relative; /* İmza hizalaması için */
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-
-        h1 { color: var(--primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; font-size: 1.8rem; }
-        .subtitle { font-size: 0.9rem; color: #888; margin-bottom: 1.5rem; }
-
-        /* API Bölümü */
-        .api-section {
-            background: #252525; padding: 10px; border-radius: 8px; margin-bottom: 20px;
-            display: flex; gap: 5px; border: 1px dashed #444;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        .api-input { flex: 1; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; }
-        .action-btn { background: #333; color: white; border: 1px solid #555; padding: 0 15px; cursor: pointer; border-radius: 4px; }
-        
-        select { width: 100%; padding: 8px; background: #111; color: white; margin-top: 5px; border: 1px solid #444; }
+      }
 
-        /* Maç Kartları */
+      @media (max-width: 600px) {
         .match-area {
-            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-bottom: 20px;
+          flex-direction: column;
         }
-
-        .player-card {
-            flex: 1; min-width: 250px; background: #252525; padding: 15px;
-            border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; gap: 5px;
-        }
-        
-        .p1-card { border-top: 3px solid var(--primary); }
-        .p2-card { border-top: 3px solid var(--secondary); }
-
-        .player-card h3 { margin: 0; font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
-
-        input[type="text"] {
-            width: 90%; padding: 8px; border-radius: 4px; border: 1px solid #444;
-            background: var(--input-bg); color: white; text-align: center; font-weight: bold; margin: 0 auto;
-        }
-
-        .team-input { font-weight: normal; font-style: italic; color: #bbb; font-size: 0.8rem; }
-
-        input[type="number"] {
-            background: transparent; border: none; color: white; text-align: center;
-        }
-        
-        .score-input { font-size: 2.5rem; font-weight: bold; width: 100%; margin: 5px 0; }
-
-        /* İstatistikler */
-        .stats-row {
-            display: flex; justify-content: space-between; gap: 5px; margin-top: 5px;
-            background: #1a1a1a; padding: 5px; border-radius: 5px;
-        }
-        .stat-box { display: flex; flex-direction: column; width: 48%; }
-        .stat-box label { font-size: 0.6rem; color: #777; margin-bottom: 2px; }
-        .stat-input {
-            width: 100%; font-size: 0.9rem; padding: 3px; border: 1px solid #333;
-            background: #222; border-radius: 4px; color: var(--primary);
-        }
-        .p2-card .stat-input { color: var(--secondary); }
-
-        .vs-badge { width: 100%; text-align: center; font-weight: bold; color: #555; margin: -5px 0 5px 0; }
-
-        .main-btn {
-            background: linear-gradient(135deg, var(--primary), #3a7bd5);
-            color: white; border: none; padding: 15px; font-size: 1.1rem; font-weight: bold;
-            border-radius: 8px; cursor: pointer; width: 100%; transition: 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
-        }
-        .main-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5); }
-        .main-btn:disabled { background: #444; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        /* Capture Area */
-        #capture-area {
-            margin-top: 30px; display: none; text-align: left;
-            background-color: #1a1a1a; padding: 20px;
-            border-radius: 15px; border: 1px solid #333;
-        }
-
-        #result-header {
-            display: flex; justify-content: center; align-items: center; gap: 15px;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333;
-            font-size: 1.2rem; font-weight: bold; color: #fff;
-        }
-        
-        .fortune-card {
-            background: #252525; padding: 15px; border-radius: 8px; margin-top: 15px;
-            border-left: 4px solid #555; animation: fadeIn 0.5s ease;
-        }
-        .winner-card { border-left-color: #4cd137; background: rgba(76, 209, 55, 0.05); }
-        .loser-card { border-left-color: #ff0055; background: rgba(255, 0, 85, 0.05); }
-        .fortune-card h3 { margin: 0 0 5px 0; font-size: 0.85rem; color: #fff; opacity: 0.7; text-transform: uppercase;}
-        .fortune-text { margin: 0; font-size: 0.95rem; line-height: 1.4; color: #ddd; }
-
-        .share-btn {
-            background: #ff9f43; color: white; border: none; padding: 12px; margin-top: 15px;
-            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; display: none;
-        }
-        .share-btn:hover { background: #ee8e32; }
-
-        /* --- İMZA BÖLÜMÜ STİLLERİ --- */
-        .design-credit {
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #333;
-            font-size: 0.8rem;
-            color: #666;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .design-credit span {
-            color: var(--primary); /* Neon Mavi */
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(0, 210, 255, 0.3);
-            font-family: 'Courier New', Courier, monospace; /* Kodlama havası */
-        }
-
-        .loader {
-            border: 4px solid #333; border-top: 4px solid var(--primary);
-            border-radius: 50%; width: 30px; height: 30px;
-            animation: spin 1s linear infinite; margin: 20px auto; display: none;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 600px) { .match-area { flex-direction: column; } }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="container">
+      <h1>⚽ AI FIFA Analizörü</h1>
+      <p class="subtitle">İstatistikleri Gir, Sonucu Paylaş</p>
 
-<div class="container">
-    <h1>⚽ AI FIFA Analizörü</h1>
-    <p class="subtitle">İstatistikleri Gir, Sonucu Paylaş</p>
+      <div class="api-section">
+        <input
+          type="password"
+          id="apiKey"
+          class="api-input"
+          placeholder="Google Gemini API Key"
+        />
+        <button class="action-btn" onclick="listModels()">
+          🔄 Modelleri Bul
+        </button>
+      </div>
+      <select
+        id="modelSelect"
+        style="display: none; margin-bottom: 20px"
+      ></select>
 
-    <div class="api-section">
-        <input type="password" id="apiKey" class="api-input" placeholder="Google Gemini API Key">
-        <button class="action-btn" onclick="listModels()">🔄 Modelleri Bul</button>
-    </div>
-    <select id="modelSelect" style="display:none; margin-bottom: 20px;"></select>
-    
-    <div class="match-area">
+      <div class="match-area">
         <div class="player-card p1-card">
-            <h3>EV SAHİBİ</h3>
-            <input type="text" id="p1Name" placeholder="İsim" value="Ahmet">
-            <input type="text" id="p1Team" class="team-input" placeholder="Takım">
-            <input type="number" id="p1Score" class="score-input" min="0" value="0">
-            <div class="stats-row">
-                <div class="stat-box"><label>ŞUT</label><input type="number" id="p1Shots" class="stat-input" value="5"></div>
-                <div class="stat-box"><label>xG</label><input type="number" id="p1Xg" class="stat-input" value="1.2" step="0.1"></div>
+          <h3>EV SAHİBİ</h3>
+          <input type="text" id="p1Name" placeholder="İsim" value="Ahmet" />
+          <input
+            type="text"
+            id="p1Team"
+            class="team-input"
+            placeholder="Takım"
+          />
+          <input
+            type="number"
+            id="p1Score"
+            class="score-input"
+            min="0"
+            value="0"
+          />
+          <div class="stats-row">
+            <div class="stat-box">
+              <label>ŞUT</label
+              ><input type="number" id="p1Shots" class="stat-input" value="5" />
             </div>
+            <div class="stat-box">
+              <label>xG</label
+              ><input
+                type="number"
+                id="p1Xg"
+                class="stat-input"
+                value="1.2"
+                step="0.1"
+              />
+            </div>
+          </div>
         </div>
         <div class="vs-badge">VS</div>
         <div class="player-card p2-card">
-            <h3>DEPLASMAN</h3>
-            <input type="text" id="p2Name" placeholder="İsim" value="Mehmet">
-            <input type="text" id="p2Team" class="team-input" placeholder="Takım">
-            <input type="number" id="p2Score" class="score-input" min="0" value="0">
-            <div class="stats-row">
-                <div class="stat-box"><label>ŞUT</label><input type="number" id="p2Shots" class="stat-input" value="5"></div>
-                <div class="stat-box"><label>xG</label><input type="number" id="p2Xg" class="stat-input" value="1.2" step="0.1"></div>
+          <h3>DEPLASMAN</h3>
+          <input type="text" id="p2Name" placeholder="İsim" value="Mehmet" />
+          <input
+            type="text"
+            id="p2Team"
+            class="team-input"
+            placeholder="Takım"
+          />
+          <input
+            type="number"
+            id="p2Score"
+            class="score-input"
+            min="0"
+            value="0"
+          />
+          <div class="stats-row">
+            <div class="stat-box">
+              <label>ŞUT</label
+              ><input type="number" id="p2Shots" class="stat-input" value="5" />
             </div>
+            <div class="stat-box">
+              <label>xG</label
+              ><input
+                type="number"
+                id="p2Xg"
+                class="stat-input"
+                value="1.2"
+                step="0.1"
+              />
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <button id="analyzeBtn" class="main-btn" onclick="askGemini()">🔥 Analiz Et</button>
-    <div id="loader" class="loader"></div>
+      <button id="analyzeBtn" class="main-btn" onclick="askGemini()">
+        🔥 Analiz Et
+      </button>
+      <div id="loader" class="loader"></div>
 
-    <div id="capture-area">
+      <div id="capture-area">
         <div id="result-header"></div>
         <div class="fortune-card winner-card">
-            <h3>🏆 KAZANANIN YORUMU</h3>
-            <p id="winner-text" class="fortune-text"></p>
+          <h3>🏆 KAZANANIN YORUMU</h3>
+          <p id="winner-text" class="fortune-text"></p>
         </div>
         <div class="fortune-card loser-card">
-            <h3>💀 KAYBEDENİN YORUMU</h3>
-            <p id="loser-text" class="fortune-text"></p>
+          <h3>💀 KAYBEDENİN YORUMU</h3>
+          <p id="loser-text" class="fortune-text"></p>
         </div>
-        <div class="fortune-card" style="border-left-color: #fbc531;">
-            <h3>📢 MAÇIN ÖZETİ</h3>
-            <p id="summary-text" class="fortune-text"></p>
+        <div class="fortune-card" style="border-left-color: #fbc531">
+          <h3>📢 MAÇIN ÖZETİ</h3>
+          <p id="summary-text" class="fortune-text"></p>
         </div>
-        <div style="margin-top:15px; font-size: 0.6rem; color:#444; text-align: right;">⚽ AI FIFA Analizörü | Designed by Erhan Polat</div>
+        <div
+          style="
+            margin-top: 15px;
+            font-size: 0.6rem;
+            color: #444;
+            text-align: right;
+          "
+        >
+          ⚽ AI FIFA Analizörü | Designed by Erhan Polat
+        </div>
+      </div>
+
+      <button id="shareBtn" class="share-btn" onclick="downloadImage()">
+        📸 Sonucu Resim Olarak İndir
+      </button>
+
+      <div class="design-credit">
+        Designed by
+        <a href="https://erhanpolat.net"><span>Erhan Polat</span></a>
+        <div class="bmc-container"></div>
+      </div>
+      <a
+        class="bmc-button"
+        target="_blank"
+        href="https://buymeacoffee.com/erhanpolat"
+      >
+        <img
+          src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+          alt="Buy Me A Coffee"
+        />
+      </a>
     </div>
 
-    <button id="shareBtn" class="share-btn" onclick="downloadImage()">📸 Sonucu Resim Olarak İndir</button>
-
-    <div class="design-credit">
-        Designed by <a href="https://erhanpolat.net"><span>Erhan Polat</span></a>
-    </div>
-</div>
-
-<script>
-    async function listModels() {
-        const apiKey = document.getElementById('apiKey').value;
-        const selectBox = document.getElementById('modelSelect');
-        if (!apiKey) { alert("API Key giriniz!"); return; }
+    <script>
+      async function listModels() {
+        const apiKey = document.getElementById("apiKey").value;
+        const selectBox = document.getElementById("modelSelect");
+        if (!apiKey) {
+          alert("API Key giriniz!");
+          return;
+        }
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+          );
+          const data = await response.json();
+          if (data.error) throw new Error(data.error.message);
 
-            const models = data.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
-            selectBox.innerHTML = "";
-            models.forEach(m => {
-                const opt = document.createElement("option");
-                opt.value = m.name;
-                opt.text = m.displayName;
-                selectBox.appendChild(opt);
-            });
-            
-            const best = models.find(m => m.name.includes('flash')) || models.find(m => m.name.includes('pro'));
-            if(best) selectBox.value = best.name;
+          const models = data.models.filter((m) =>
+            m.supportedGenerationMethods.includes("generateContent")
+          );
+          selectBox.innerHTML = "";
+          models.forEach((m) => {
+            const opt = document.createElement("option");
+            opt.value = m.name;
+            opt.text = m.displayName;
+            selectBox.appendChild(opt);
+          });
 
-            selectBox.style.display = 'block';
-            alert("Modeller yüklendi!");
-        } catch (e) { alert("Hata: " + e.message); }
-    }
+          const best =
+            models.find((m) => m.name.includes("flash")) ||
+            models.find((m) => m.name.includes("pro"));
+          if (best) selectBox.value = best.name;
 
-    async function askGemini() {
-        const apiKey = document.getElementById('apiKey').value;
-        const model = document.getElementById('modelSelect').value;
-        
+          selectBox.style.display = "block";
+          alert("Modeller yüklendi!");
+        } catch (e) {
+          alert("Hata: " + e.message);
+        }
+      }
+
+      async function askGemini() {
+        const apiKey = document.getElementById("apiKey").value;
+        const model = document.getElementById("modelSelect").value;
+
         const p1 = {
-            name: document.getElementById('p1Name').value || 'P1',
-            team: document.getElementById('p1Team').value || 'Takım 1',
-            score: document.getElementById('p1Score').value,
-            shots: document.getElementById('p1Shots').value,
-            xg: document.getElementById('p1Xg').value
+          name: document.getElementById("p1Name").value || "P1",
+          team: document.getElementById("p1Team").value || "Takım 1",
+          score: document.getElementById("p1Score").value,
+          shots: document.getElementById("p1Shots").value,
+          xg: document.getElementById("p1Xg").value,
         };
         const p2 = {
-            name: document.getElementById('p2Name').value || 'P2',
-            team: document.getElementById('p2Team').value || 'Takım 2',
-            score: document.getElementById('p2Score').value,
-            shots: document.getElementById('p2Shots').value,
-            xg: document.getElementById('p2Xg').value
+          name: document.getElementById("p2Name").value || "P2",
+          team: document.getElementById("p2Team").value || "Takım 2",
+          score: document.getElementById("p2Score").value,
+          shots: document.getElementById("p2Shots").value,
+          xg: document.getElementById("p2Xg").value,
         };
 
-        if (!apiKey || !model) { alert("API Key ve Model seçimi gerekli!"); return; }
+        if (!apiKey || !model) {
+          alert("API Key ve Model seçimi gerekli!");
+          return;
+        }
 
-        const btn = document.getElementById('analyzeBtn');
-        const loader = document.getElementById('loader');
-        const res = document.getElementById('capture-area');
-        const shareBtn = document.getElementById('shareBtn');
+        const btn = document.getElementById("analyzeBtn");
+        const loader = document.getElementById("loader");
+        const res = document.getElementById("capture-area");
+        const shareBtn = document.getElementById("shareBtn");
 
-        btn.disabled = true; btn.innerText = "Yapay Zeka İzliyor..."; 
-        loader.style.display = 'block'; res.style.display = 'none'; shareBtn.style.display = 'none';
+        btn.disabled = true;
+        btn.innerText = "Yapay Zeka İzliyor...";
+        loader.style.display = "block";
+        res.style.display = "none";
+        shareBtn.style.display = "none";
 
         const prompt = `
             Sen FIFA'nın en toksik, istatistiklere takıntılı, ağzı bozuk (küfürsüz) yorumcususun.
@@ -300,44 +600,63 @@
         `;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${apiKey}`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${apiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+              }),
+            }
+          );
 
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
+          const data = await response.json();
+          if (data.error) throw new Error(data.error.message);
 
-            let txt = data.candidates[0].content.parts[0].text;
-            txt = txt.replace(/```json/g, '').replace(/```/g, '').trim();
-            const json = JSON.parse(txt);
+          let txt = data.candidates[0].content.parts[0].text;
+          txt = txt
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+          const json = JSON.parse(txt);
 
-            document.getElementById('result-header').innerText = `${p1.name} ${p1.score} - ${p2.score} ${p2.name}`;
-            document.getElementById('winner-text').innerText = json.winner_comment;
-            document.getElementById('loser-text').innerText = json.loser_comment;
-            document.getElementById('summary-text').innerText = json.match_summary;
-            
-            res.style.display = 'block';
-            shareBtn.style.display = 'block';
+          document.getElementById(
+            "result-header"
+          ).innerText = `${p1.name} ${p1.score} - ${p2.score} ${p2.name}`;
+          document.getElementById("winner-text").innerText =
+            json.winner_comment;
+          document.getElementById("loser-text").innerText = json.loser_comment;
+          document.getElementById("summary-text").innerText =
+            json.match_summary;
 
-        } catch (e) { alert("Hata: " + e.message); console.log(e); } 
-        finally { btn.disabled = false; btn.innerText = "🔥 Analiz Et"; loader.style.display = 'none'; }
-    }
+          res.style.display = "block";
+          shareBtn.style.display = "block";
+        } catch (e) {
+          alert("Hata: " + e.message);
+          console.log(e);
+        } finally {
+          btn.disabled = false;
+          btn.innerText = "🔥 Analiz Et";
+          loader.style.display = "none";
+        }
+      }
 
-    function downloadImage() {
+      function downloadImage() {
         const element = document.getElementById("capture-area");
-        const shareBtn = document.getElementById('shareBtn');
+        const shareBtn = document.getElementById("shareBtn");
         shareBtn.innerText = "Resim Oluşturuluyor...";
 
-        html2canvas(element, { backgroundColor: "#1a1a1a", scale: 2 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'fifa_mac_sonucu.png';
+        html2canvas(element, { backgroundColor: "#1a1a1a", scale: 2 }).then(
+          (canvas) => {
+            const link = document.createElement("a");
+            link.download = "fifa_mac_sonucu.png";
             link.href = canvas.toDataURL();
             link.click();
             shareBtn.innerText = "📸 Sonucu Resim Olarak İndir";
-        });
-    }
-</script>
-
-</body>
+          }
+        );
+      }
+    </script>
+  </body>
 </html>
