@@ -1,4 +1,4 @@
-# 🔮 AI FIFA Müneccimi (AI FIFA Oracle)
+# ⚽ AI FIFA Analizörü (AI FIFA Oracle)
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
@@ -10,7 +10,6 @@ FIFA maçlarınızın sonuçlarını, istatistiklerini (xG, Şut) ve seçilen ta
 Arkadaşlarınızla oynadığınız maçlardan sonra "Kol bozuktu", "Script yedik" bahanelerini yapay zeka yorumlasın!
 
 ![Uygulama Ekran Görüntüsü](screenshot.png)
-*(Buraya projenin ekran görüntüsünü ekleyebilirsiniz)*
 
 ## 🌟 Özellikler
 
@@ -27,7 +26,7 @@ Bu proje herhangi bir sunucu kurulumu veya `npm install` gerektirmez. Doğrudan 
 
 1.  Bu repoyu bilgisayarınıza indirin (Clone) veya ZIP olarak indirin.
     ```bash
-    git clone [https://github.com/ACRZeuss/ai-fifa-analizoru.git](https://github.com/ACRZeuss/ai-fifa-analizoru.git)
+    git clone https://github.com/ACRZeuss/ai-fifa-analizoru.git
     ```
 2.  Klasörün içindeki `index.html` dosyasını tarayıcınızda (Chrome, Edge, Firefox vb.) açın.
 3.  **Google Gemini API Anahtarı** edinin: [Google AI Studio](https://aistudio.google.com/app/apikey) adresinden ücretsiz alabilirsiniz.
@@ -58,6 +57,7 @@ Bu proje herhangi bir sunucu kurulumu veya `npm install` gerektirmez. Doğrudan 
 
 **Erhan Polat**
 * GitHub: [@Erhan Polat](https://github.com/ACRZeuss)
+* Buy me a coffee": [@Erhan Polat](https://buymeacoffee.com/erhanpolat)
 
 ---
 *Bu proje eğlence amaçlı yapılmıştır. FIFA, EA Sports'un ticari markasıdır.*
